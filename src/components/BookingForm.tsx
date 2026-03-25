@@ -71,8 +71,9 @@ const timeLabels: Record<string, string> = {
 };
 
 export default function BookingForm({ tour }: { tour: Tour }) {
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("10:00");
+  const next = getNextAvailableTime(tour);
+  const [date, setDate] = useState(next.date);
+  const [time, setTime] = useState(next.time);
   const [guests, setGuests] = useState(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -347,14 +348,13 @@ export default function BookingForm({ tour }: { tour: Tour }) {
             onChange={(e) => setTime(e.target.value)}
             className="w-full rounded-xl border border-cream-dark bg-white px-4 py-3 text-brown focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
           >
-            {Object.entries(timeLabels).map(([value, label]) => {
-              const available = isTimeSlotAvailable(value, date);
-              return (
-                <option key={value} value={value} disabled={!available}>
-                  {label}{!available ? " (unavailable)" : ""}
+            {Object.entries(timeLabels)
+              .filter(([value]) => isTimeSlotAvailable(value, date))
+              .map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
                 </option>
-              );
-            })}
+              ))}
           </select>
         </div>
       )}
