@@ -12,19 +12,34 @@ const featuredSlugs = [
 
 const testimonials = [
   {
-    name: "Sarah M.",
-    text: "Absolutely the best tour we've ever taken! Our guide was knowledgeable, funny, and made Budapest come alive. The chimney cake was a bonus!",
-    location: "United States",
+    name: "Margaret M.",
+    text: "The walking tour with Karol was fantastic! He tailored the information to our preferences. The beauty and splendor of the architecture alone is breathtaking. Walking the streets of Buda is like stepping back in time.",
+    location: "London, Canada",
   },
   {
-    name: "James & Emily W.",
-    text: "The Buda Castle Walk was magical. Small group, personal attention, and the views were breathtaking. Highly recommend!",
-    location: "United Kingdom",
+    name: "Anthony James S.",
+    text: "Our tour guide, Daniel was very knowledgeable and a great partner to walk around with. He suited the tour for our needs. The tour included a stop at a local Cafe where we tried a Hungarian cake and a coffee. This was definitely what we were looking for.",
+    location: "Michigan, USA",
   },
   {
-    name: "Marco R.",
-    text: "The ruin bars tour was an unforgettable evening. Our guide knew all the hidden spots and the drinks were fantastic.",
-    location: "Italy",
+    name: "Debbie T.",
+    text: "Bianka was amazing!!! The tour was only my husband and I, and she made it so much fun! Would highly recommend this to anyone traveling to Budapest.",
+    location: "Tripadvisor",
+  },
+  {
+    name: "suezq916",
+    text: "Sandor was an amazing guide — extremely knowledgeable and informative! He shared so many aspects of the history of Budapest and related them to the present time.",
+    location: "San Mateo, California",
+  },
+  {
+    name: "Dmkopera1",
+    text: "Zoltan provided a great tour of 3 ruin bars. He shared the history and uniqueness of each one. We had drinks and delicious langos, he kept us entertained with stories!",
+    location: "Tripadvisor",
+  },
+  {
+    name: "Cynthia E.",
+    text: "Our tour guide, Judith, met us at our hotel and showed us how to use the public transportation system. The tour was a wonderful overview of the important sights to be seen in Budapest.",
+    location: "Tripadvisor",
   },
 ];
 
@@ -135,9 +150,12 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((t) => (
-              <div
+              <a
                 key={t.name}
-                className="bg-cream rounded-2xl p-8 shadow-sm"
+                href="https://www.tripadvisor.com/Attraction_Review-g274887-d10766490-Reviews-WalkingTour_Budapest-Budapest_Central_Hungary.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-cream rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow"
               >
                 {/* Stars */}
                 <div className="flex gap-1 mb-4">
@@ -159,7 +177,7 @@ export default function Home() {
                   <p className="font-semibold text-brown">{t.name}</p>
                   <p className="text-sm text-brown-light/60">{t.location}</p>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>

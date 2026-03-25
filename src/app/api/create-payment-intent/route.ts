@@ -3,10 +3,10 @@ import { stripe } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   try {
-    const { tourSlug, tourName, totalPrice, date, time, guests } =
+    const { tourSlug, tourName, totalPrice, date, time, guests, customerName, customerEmail, customerPhone, pickupLocation } =
       await req.json();
 
-    if (!tourName || !totalPrice || !date || !guests) {
+    if (!tourName || !totalPrice || !date || !guests || !customerName || !customerEmail || !customerPhone) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -24,7 +24,13 @@ export async function POST(req: NextRequest) {
       amount: Math.round(totalPrice * 100), // cents
       currency: "eur",
       payment_method_types: ["card"],
-      description: `${tourName} — ${date} at ${time} — ${guests} guest(s)`,
+      payment_method_options: {
+        card: {
+          setup_future_usage: undefined,
+        },
+      },
+      description: `${tourName} — ${date} at ${time} — ${guests} guest(s) — ${customerName}`,
+      receipt_email: customerEmail,
       metadata: {
         tourSlug,
         tourName,
@@ -32,6 +38,10 @@ export async function POST(req: NextRequest) {
         time,
         guests: String(guests),
         totalPrice: String(totalPrice),
+        customerName,
+        customerEmail,
+        customerPhone,
+        pickupLocation: pickupLocation || "",
       },
     });
 

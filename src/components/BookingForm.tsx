@@ -74,9 +74,13 @@ export default function BookingForm({ tour }: { tour: Tour }) {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("10:00");
   const [guests, setGuests] = useState(1);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [pickup, setPickup] = useState("");
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<"details" | "payment">("details");
+  const [step, setStep] = useState<"booking" | "contact" | "payment">("booking");
 
   const isFlexibleTime = tour.startTime === "Flexible";
 
@@ -86,12 +90,37 @@ export default function BookingForm({ tour }: { tour: Tour }) {
 
   const totalPrice = getTotalPrice(tour, guests);
 
+  function isTimeSlotAvailable(slot: string, selectedDate: string): boolean {
+    if (!selectedDate) return true;
+    const [h, m] = slot.split(":").map(Number);
+    const slotDate = new Date(selectedDate + "T00:00:00");
+    slotDate.setHours(h, m, 0, 0);
+    const cutoff = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    return slotDate > cutoff;
+  }
+
+  function handleDateChange(newDate: string) {
+    setDate(newDate);
+    // If current time is no longer available for the new date, reset to first available
+    if (isFlexibleTime && !isTimeSlotAvailable(time, newDate)) {
+      const firstAvailable = Object.keys(timeLabels).find((slot) =>
+        isTimeSlotAvailable(slot, newDate)
+      );
+      if (firstAvailable) setTime(firstAvailable);
+    }
+  }
+
   function fillNextAvailable() {
     const next = getNextAvailableTime(tour);
     setDate(next.date);
     if (isFlexibleTime) {
       setTime(next.time);
     }
+  }
+
+  function handleContinue(e: React.FormEvent) {
+    e.preventDefault();
+    setStep("contact");
   }
 
   async function handleProceedToPayment(e: React.FormEvent) {
@@ -109,6 +138,10 @@ export default function BookingForm({ tour }: { tour: Tour }) {
           date,
           time: isFlexibleTime ? time : tour.startTime,
           guests,
+          customerName: name,
+          customerEmail: email,
+          customerPhone: phone,
+          pickupLocation: isFlexibleTime ? pickup : "",
         }),
       });
 
@@ -127,6 +160,7 @@ export default function BookingForm({ tour }: { tour: Tour }) {
     }
   }
 
+  // Step 3: Payment
   if (step === "payment" && clientSecret) {
     return (
       <Elements
@@ -147,14 +181,130 @@ export default function BookingForm({ tour }: { tour: Tour }) {
       >
         <PaymentForm
           totalPrice={totalPrice}
-          onBack={() => setStep("details")}
+          onBack={() => setStep("contact")}
         />
       </Elements>
     );
   }
 
+  // Step 2: Contact details
+  if (step === "contact") {
+    return (
+      <form onSubmit={handleProceedToPayment} className="space-y-6">
+        <div className="flex items-center justify-between mb-2">
+          <button
+            type="button"
+            onClick={() => setStep("booking")}
+            className="text-sm text-brown-light hover:text-terracotta transition-colors flex items-center gap-1"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+              />
+            </svg>
+            Back
+          </button>
+          <span className="text-lg font-bold text-terracotta">
+            €{totalPrice.toFixed(2)}
+          </span>
+        </div>
+
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-brown mb-2">
+            Full Name
+          </label>
+          <input
+            type="text"
+            id="name"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="John Smith"
+            className="w-full rounded-xl border border-cream-dark bg-white px-4 py-3 text-brown focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
+          />
+          <p className="text-xs text-brown-light/60 mt-1">
+            So we know who booked the tour
+          </p>
+        </div>
+
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-brown mb-2">
+            Email Address
+          </label>
+          <input
+            type="email"
+            id="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="john@example.com"
+            className="w-full rounded-xl border border-cream-dark bg-white px-4 py-3 text-brown focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
+          />
+          <p className="text-xs text-brown-light/60 mt-1">
+            We&apos;ll send your booking confirmation here
+          </p>
+        </div>
+
+        <div>
+          <label htmlFor="phone" className="block text-sm font-medium text-brown mb-2">
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            required
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="+36 20 123 4567"
+            className="w-full rounded-xl border border-cream-dark bg-white px-4 py-3 text-brown focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
+          />
+          <p className="text-xs text-brown-light/60 mt-1">
+            Your guide may contact you before the tour
+          </p>
+        </div>
+
+        {isFlexibleTime && (
+          <div>
+            <label htmlFor="pickup" className="block text-sm font-medium text-brown mb-2">
+              Pickup Location
+            </label>
+            <input
+              type="text"
+              id="pickup"
+              required
+              value={pickup}
+              onChange={(e) => setPickup(e.target.value)}
+              placeholder="Hotel name and address"
+              className="w-full rounded-xl border border-cream-dark bg-white px-4 py-3 text-brown focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
+            />
+            <p className="text-xs text-brown-light/60 mt-1">
+              Your guide will pick you up from this location
+            </p>
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-full bg-terracotta py-4 text-white font-semibold text-lg transition-all hover:bg-terracotta-dark disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Loading payment..." : "Proceed to Payment"}
+        </button>
+      </form>
+    );
+  }
+
+  // Step 1: Booking details
   return (
-    <form onSubmit={handleProceedToPayment} className="space-y-6">
+    <form onSubmit={handleContinue} className="space-y-6">
       <div className="flex items-center justify-between">
         <label
           htmlFor="date"
@@ -177,7 +327,7 @@ export default function BookingForm({ tour }: { tour: Tour }) {
           required
           min={minDate}
           value={date}
-          onChange={(e) => setDate(e.target.value)}
+          onChange={(e) => handleDateChange(e.target.value)}
           className="w-full rounded-xl border border-cream-dark bg-white px-4 py-3 text-brown focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
         />
       </div>
@@ -197,11 +347,14 @@ export default function BookingForm({ tour }: { tour: Tour }) {
             onChange={(e) => setTime(e.target.value)}
             className="w-full rounded-xl border border-cream-dark bg-white px-4 py-3 text-brown focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
           >
-            {Object.entries(timeLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
+            {Object.entries(timeLabels).map(([value, label]) => {
+              const available = isTimeSlotAvailable(value, date);
+              return (
+                <option key={value} value={value} disabled={!available}>
+                  {label}{!available ? " (unavailable)" : ""}
+                </option>
+              );
+            })}
           </select>
         </div>
       )}
@@ -250,11 +403,18 @@ export default function BookingForm({ tour }: { tour: Tour }) {
 
       <button
         type="submit"
-        disabled={loading || !date}
+        disabled={!date}
         className="w-full rounded-full bg-terracotta py-4 text-white font-semibold text-lg transition-all hover:bg-terracotta-dark disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? "Loading payment..." : "Proceed to Payment"}
+        Continue
       </button>
+
+      <p className="text-xs text-brown-light/40 text-center">
+        Free cancellation up to 24 hours before the tour.{" "}
+        <a href="#cancellation" className="underline hover:text-brown-light/60">
+          Policy
+        </a>
+      </p>
     </form>
   );
 }

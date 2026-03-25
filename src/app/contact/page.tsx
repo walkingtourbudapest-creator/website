@@ -28,7 +28,7 @@ export default function ContactPage() {
           </div>
 
           {/* Contact Info */}
-          <div className="space-y-8">
+          <div>
             <div className="bg-white rounded-2xl p-8 shadow-sm">
               <h2 className="font-heading text-xl font-bold text-brown mb-6">
                 Contact Information
@@ -69,38 +69,20 @@ export default function ContactPage() {
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+                      d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
                     />
                   </svg>
                   <div>
-                    <p className="font-medium text-brown">Meeting Point</p>
-                    <p className="text-brown-light text-sm">
-                      Hungarian State Opera House
-                      <br />
-                      Andrássy út 22, 1061 Budapest
-                    </p>
+                    <p className="font-medium text-brown">Phone</p>
+                    <a
+                      href="tel:+36304070670"
+                      className="text-terracotta hover:text-terracotta-dark transition-colors"
+                    >
+                      +36 30 407 0670
+                    </a>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Map */}
-            <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2695.4!2d19.0582!3d47.5025!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4741dc403a4a3b2d%3A0xf0be6f37ae79de71!2sHungarian%20State%20Opera%20House!5e0!3m2!1sen!2shu!4v1"
-                width="100%"
-                height="300"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Meeting point map"
-              />
             </div>
           </div>
         </div>

@@ -60,8 +60,7 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-cream/20 text-center text-sm text-cream/60">
           <p>
-            &copy; {new Date().getFullYear()} WalkingTour Budapest. All rights
-            reserved.
+            &copy; 2016 WalkingTour Budapest. All rights reserved.
           </p>
         </div>
       </div>
