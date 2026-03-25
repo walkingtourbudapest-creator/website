@@ -111,14 +111,6 @@ export default function BookingForm({ tour }: { tour: Tour }) {
     }
   }
 
-  function fillNextAvailable() {
-    const next = getNextAvailableTime(tour);
-    setDate(next.date);
-    if (isFlexibleTime) {
-      setTime(next.time);
-    }
-  }
-
   function handleContinue(e: React.FormEvent) {
     e.preventDefault();
     setStep("contact");
@@ -306,21 +298,12 @@ export default function BookingForm({ tour }: { tour: Tour }) {
   // Step 1: Booking details
   return (
     <form onSubmit={handleContinue} className="space-y-6">
-      <div className="flex items-center justify-between">
-        <label
-          htmlFor="date"
-          className="block text-sm font-medium text-brown"
-        >
-          Select Date
-        </label>
-        <button
-          type="button"
-          onClick={fillNextAvailable}
-          className="text-xs text-terracotta hover:text-terracotta-dark transition-colors underline underline-offset-2"
-        >
-          Next available
-        </button>
-      </div>
+      <label
+        htmlFor="date"
+        className="block text-sm font-medium text-brown"
+      >
+        Select Date
+      </label>
       <div className="-mt-4">
         <input
           type="date"
