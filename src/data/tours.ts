@@ -1,12 +1,15 @@
 export type TourCategory = "walking" | "private" | "around-budapest";
 
+// Pricing is total group price indexed by guest count (1-10)
+export type PricingTier = [number, number, number, number, number, number, number, number, number, number];
+
 export interface Tour {
   slug: string;
   name: string;
   subtitle: string;
   category: TourCategory;
   duration: string;
-  price: number;
+  pricing: PricingTier;
   currency: string;
   meetingPoint: string;
   meetingAddress: string;
@@ -20,6 +23,21 @@ export interface Tour {
   available: boolean;
 }
 
+export function getTotalPrice(tour: Tour, guests: number): number {
+  const idx = Math.min(Math.max(guests, 1), 10) - 1;
+  return tour.pricing[idx];
+}
+
+export function getStartingPrice(tour: Tour): number {
+  return tour.pricing[0];
+}
+
+const defaultCancellation =
+  "When booking, please provide your telephone number which will work at the time of the tour, so we can reach you if necessary. Your guide might contact you before your tour. In case of a non-private tour, your guide can only wait for a maximum of 10 minutes for late arrivals if previously notified.";
+
+const privateCancellation =
+  "When booking, please provide your telephone number which will work at the time of the tour, so we can reach you if necessary. Your guide might contact you before your tour.";
+
 export const tours: Tour[] = [
   {
     slug: "budapest-101",
@@ -27,7 +45,7 @@ export const tours: Tour[] = [
     subtitle: "Walking Tour with Chimney Cake and Metro Pass",
     category: "walking",
     duration: "3 hr 30 min",
-    price: 119,
+    pricing: [113.9, 124.9, 136.9, 148.9, 161.9, 173.9, 186.9, 198.9, 212.9, 226.9],
     currency: "EUR",
     meetingPoint: "In front of Hungarian State Opera",
     meetingAddress: "1061 Budapest, Andrássy út 22.",
@@ -44,8 +62,7 @@ export const tours: Tour[] = [
     ],
     includes: ["Professional local guide", "Metro pass", "Chimney Cake"],
     image: "/images/tours/budapest-101.jpg",
-    cancellationPolicy:
-      "When booking, please provide your telephone number which will work at the time of the tour, so we can reach you if necessary. Your guide might contact you before your tour. In case of a non-private tour, your guide can only wait for a maximum of 10 minutes for late arrivals if previously notified.",
+    cancellationPolicy: defaultCancellation,
     stripeProductId: "",
     available: true,
   },
@@ -55,7 +72,7 @@ export const tours: Tour[] = [
     subtitle: "With entry to Matthias Church, Cake & Coffee",
     category: "walking",
     duration: "3 hr 30 min",
-    price: 129,
+    pricing: [122.9, 142.9, 163.9, 184.9, 206.9, 228.9, 251.9, 274.9, 298.9, 322.9],
     currency: "EUR",
     meetingPoint: "Buda Castle District",
     meetingAddress: "Budapest, Buda Castle District",
@@ -76,8 +93,7 @@ export const tours: Tour[] = [
       "Cake & coffee",
     ],
     image: "/images/tours/buda-castle.jpg",
-    cancellationPolicy:
-      "When booking, please provide your telephone number which will work at the time of the tour, so we can reach you if necessary. Your guide might contact you before your tour. In case of a non-private tour, your guide can only wait for a maximum of 10 minutes for late arrivals if previously notified.",
+    cancellationPolicy: defaultCancellation,
     stripeProductId: "",
     available: true,
   },
@@ -87,7 +103,7 @@ export const tours: Tour[] = [
     subtitle: "Evening Walking Tour with Drinks & Snacks",
     category: "walking",
     duration: "3 hr 30 min",
-    price: 159,
+    pricing: [168.9, 208.9, 249.9, 290.9, 332.9, 376.9, 419.9, 464.9, 510.9, 556.9],
     currency: "EUR",
     meetingPoint: "Jewish Quarter",
     meetingAddress: "Budapest, Jewish Quarter",
@@ -104,8 +120,34 @@ export const tours: Tour[] = [
     ],
     includes: ["Professional local guide", "Drinks", "Snacks"],
     image: "/images/tours/ruin-bars.jpg",
-    cancellationPolicy:
-      "When booking, please provide your telephone number which will work at the time of the tour, so we can reach you if necessary. Your guide might contact you before your tour. In case of a non-private tour, your guide can only wait for a maximum of 10 minutes for late arrivals if previously notified.",
+    cancellationPolicy: defaultCancellation,
+    stripeProductId: "",
+    available: true,
+  },
+  {
+    slug: "budapest-bites",
+    name: "Budapest Bites",
+    subtitle: "Food Walking Tour with Tastings",
+    category: "walking",
+    duration: "3 hr 30 min",
+    pricing: [156.9, 188.9, 222.9, 256.9, 291.9, 326.9, 362.9, 399.9, 437.9, 474.9],
+    currency: "EUR",
+    meetingPoint: "City center",
+    meetingAddress: "Budapest, city center",
+    startTime: "11:00 AM",
+    description:
+      "Taste your way through Budapest on this delicious food tour. Sample traditional Hungarian dishes, visit local markets, and discover the flavors that make Hungarian cuisine so special. From street food to hidden gems, this tour is a feast for all senses.",
+    highlights: [
+      "Traditional Hungarian food tastings",
+      "Local markets",
+      "Street food stops",
+      "Hidden culinary gems",
+      "Cultural food history",
+      "Local drinks",
+    ],
+    includes: ["Professional local guide", "Food tastings", "Drinks"],
+    image: "/images/tours/budapest-bites.jpg",
+    cancellationPolicy: defaultCancellation,
     stripeProductId: "",
     available: true,
   },
@@ -115,7 +157,7 @@ export const tours: Tour[] = [
     subtitle: "Full Day Walking Tour with Lunch & Public Transport Pass",
     category: "walking",
     duration: "6 hr",
-    price: 245,
+    pricing: [268.9, 326.9, 384.9, 444.9, 506.9, 568.9, 632.9, 697.9, 763.9, 831.9],
     currency: "EUR",
     meetingPoint: "In front of Hungarian State Opera",
     meetingAddress: "1061 Budapest, Andrássy út 22.",
@@ -138,8 +180,7 @@ export const tours: Tour[] = [
       "Public transport pass",
     ],
     image: "/images/tours/all-about-budapest.jpg",
-    cancellationPolicy:
-      "When booking, please provide your telephone number which will work at the time of the tour, so we can reach you if necessary. Your guide might contact you before your tour. In case of a non-private tour, your guide can only wait for a maximum of 10 minutes for late arrivals if previously notified.",
+    cancellationPolicy: defaultCancellation,
     stripeProductId: "",
     available: true,
   },
@@ -149,7 +190,7 @@ export const tours: Tour[] = [
     subtitle: "Hotel Pickup, Entry to Matthias Church and Hungarian Cake & Coffee",
     category: "private",
     duration: "3 hr 30 min",
-    price: 179,
+    pricing: [173.9, 197.9, 222.9, 247.9, 272.9, 298.9, 324.9, 352.9, 379.9, 407.9],
     currency: "EUR",
     meetingPoint: "Hotel pickup",
     meetingAddress: "Your hotel in Budapest",
@@ -171,8 +212,7 @@ export const tours: Tour[] = [
       "Cake & coffee",
     ],
     image: "/images/tours/private-buda-castle.jpg",
-    cancellationPolicy:
-      "When booking, please provide your telephone number which will work at the time of the tour, so we can reach you if necessary. Your guide might contact you before your tour.",
+    cancellationPolicy: privateCancellation,
     stripeProductId: "",
     available: true,
   },
@@ -182,7 +222,7 @@ export const tours: Tour[] = [
     subtitle: "Private Half Day Guided Tour by Car from Your Hotel",
     category: "private",
     duration: "3 hr 30 min",
-    price: 199,
+    pricing: [252.9, 254.9, 257.9, 259.9, 263.9, 266.9, 268.9, 271.9, 274.9, 277.9],
     currency: "EUR",
     meetingPoint: "Hotel pickup",
     meetingAddress: "Your hotel in Budapest",
@@ -204,8 +244,7 @@ export const tours: Tour[] = [
       "Hotel pickup & drop-off",
     ],
     image: "/images/tours/grand-budapest.jpg",
-    cancellationPolicy:
-      "When booking, please provide your telephone number which will work at the time of the tour, so we can reach you if necessary. Your guide might contact you before your tour.",
+    cancellationPolicy: privateCancellation,
     stripeProductId: "",
     available: true,
   },
@@ -215,7 +254,7 @@ export const tours: Tour[] = [
     subtitle: "With Chimney Cake and Public Transport Tickets",
     category: "private",
     duration: "3 hr 30 min",
-    price: 169,
+    pricing: [162.9, 176.9, 189.9, 204.9, 218.9, 233.9, 248.9, 263.9, 278.9, 294.9],
     currency: "EUR",
     meetingPoint: "Hotel pickup or arranged meeting point",
     meetingAddress: "Your hotel in Budapest",
@@ -236,8 +275,7 @@ export const tours: Tour[] = [
       "Chimney Cake",
     ],
     image: "/images/tours/private-budapest-101.jpg",
-    cancellationPolicy:
-      "When booking, please provide your telephone number which will work at the time of the tour, so we can reach you if necessary. Your guide might contact you before your tour.",
+    cancellationPolicy: privateCancellation,
     stripeProductId: "",
     available: true,
   },
@@ -247,7 +285,7 @@ export const tours: Tour[] = [
     subtitle: "With Drinks and Snack",
     category: "private",
     duration: "3 hr 30 min",
-    price: 199,
+    pricing: [188.9, 229.9, 271.9, 313.9, 356.9, 399.9, 444.9, 491.9, 537.9, 584.9],
     currency: "EUR",
     meetingPoint: "Hotel pickup or arranged meeting point",
     meetingAddress: "Your hotel in Budapest",
@@ -268,8 +306,7 @@ export const tours: Tour[] = [
       "Snack",
     ],
     image: "/images/tours/private-ruin-bars.jpg",
-    cancellationPolicy:
-      "When booking, please provide your telephone number which will work at the time of the tour, so we can reach you if necessary. Your guide might contact you before your tour.",
+    cancellationPolicy: privateCancellation,
     stripeProductId: "",
     available: true,
   },
@@ -279,7 +316,7 @@ export const tours: Tour[] = [
     subtitle: "Full Day Trip to Szentendre, Visegrád & Esztergom",
     category: "around-budapest",
     duration: "8 hr",
-    price: 299,
+    pricing: [469.9, 487.9, 504.9, 522.9, 539.9, 557.9, 576.9, 594.9, 613.9, 632.9],
     currency: "EUR",
     meetingPoint: "Hotel pickup",
     meetingAddress: "Your hotel in Budapest",
@@ -300,8 +337,7 @@ export const tours: Tour[] = [
       "Entry fees",
     ],
     image: "/images/tours/danube-bend.jpg",
-    cancellationPolicy:
-      "When booking, please provide your telephone number which will work at the time of the tour, so we can reach you if necessary. Your guide might contact you before your tour.",
+    cancellationPolicy: privateCancellation,
     stripeProductId: "",
     available: true,
   },
@@ -311,7 +347,7 @@ export const tours: Tour[] = [
     subtitle: "Visit the Royal Palace of Gödöllő",
     category: "around-budapest",
     duration: "4 hr",
-    price: 229,
+    pricing: [243.9, 281.9, 319.9, 359.9, 401.9, 442.9, 483.9, 527.9, 571.9, 614.9],
     currency: "EUR",
     meetingPoint: "Hotel pickup",
     meetingAddress: "Your hotel in Budapest",
@@ -331,8 +367,37 @@ export const tours: Tour[] = [
       "Palace entry fee",
     ],
     image: "/images/tours/sisi-palace.jpg",
-    cancellationPolicy:
-      "When booking, please provide your telephone number which will work at the time of the tour, so we can reach you if necessary. Your guide might contact you before your tour.",
+    cancellationPolicy: privateCancellation,
+    stripeProductId: "",
+    available: true,
+  },
+  {
+    slug: "vienna",
+    name: "Vienna Day Trip",
+    subtitle: "Full Day Private Tour to Vienna by Car",
+    category: "around-budapest",
+    duration: "10 hr",
+    pricing: [1026.9, 1037.9, 1048.9, 1059.9, 1071.9, 1082.9, 1093.9, 1104.9, 1117.9, 1128.9],
+    currency: "EUR",
+    meetingPoint: "Hotel pickup",
+    meetingAddress: "Your hotel in Budapest",
+    startTime: "8:00 AM",
+    description:
+      "Discover the imperial beauty of Vienna on this full-day private tour from Budapest. Travel in comfort by car and explore the highlights of Austria's capital with your personal guide. From the Hofburg Palace to St. Stephen's Cathedral, experience the grandeur of Vienna.",
+    highlights: [
+      "Private car & guide",
+      "Hofburg Palace",
+      "St. Stephen's Cathedral",
+      "Vienna city center",
+      "Schönbrunn Palace area",
+      "Hotel pickup & drop-off",
+    ],
+    includes: [
+      "Private guide & transport",
+      "Hotel pickup & drop-off",
+    ],
+    image: "/images/tours/vienna.jpg",
+    cancellationPolicy: privateCancellation,
     stripeProductId: "",
     available: true,
   },

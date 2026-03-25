@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { tours, getTourBySlug } from "@/data/tours";
+import { tours, getTourBySlug, getStartingPrice } from "@/data/tours";
 import BookingForm from "@/components/BookingForm";
 
 export function generateStaticParams() {
@@ -19,7 +19,7 @@ export async function generateMetadata({
 
   return {
     title: tour.name,
-    description: `${tour.subtitle}. ${tour.duration} — From €${tour.price}. ${tour.description.slice(0, 120)}...`,
+    description: `${tour.subtitle}. ${tour.duration} — From €${getStartingPrice(tour)}. ${tour.description.slice(0, 120)}...`,
   };
 }
 
@@ -115,7 +115,7 @@ export default async function TourDetailPage({
                     />
                   </svg>
                   <span className="font-medium text-brown">
-                    From €{tour.price}
+                    From €{getStartingPrice(tour)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 bg-white rounded-xl px-5 py-3 shadow-sm">

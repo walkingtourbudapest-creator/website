@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import type { Tour } from "@/data/tours";
+import { type Tour, getTotalPrice } from "@/data/tours";
 
 export default function BookingForm({ tour }: { tour: Tour }) {
   const [date, setDate] = useState("");
-  const [participants, setParticipants] = useState(1);
+  const [guests, setGuests] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // Get tomorrow's date as minimum selectable date
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split("T")[0];
+
+  const totalPrice = getTotalPrice(tour, guests);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,9 +25,9 @@ export default function BookingForm({ tour }: { tour: Tour }) {
         body: JSON.stringify({
           tourSlug: tour.slug,
           tourName: tour.name,
-          price: tour.price,
+          totalPrice,
           date,
-          participants,
+          guests,
         }),
       });
 
@@ -65,42 +66,45 @@ export default function BookingForm({ tour }: { tour: Tour }) {
       </div>
 
       <div>
-        <label
-          htmlFor="participants"
-          className="block text-sm font-medium text-brown mb-2"
-        >
-          Number of Participants
+        <label className="block text-sm font-medium text-brown mb-2">
+          Number of Guests
         </label>
-        <select
-          id="participants"
-          value={participants}
-          onChange={(e) => setParticipants(Number(e.target.value))}
-          className="w-full rounded-xl border border-cream-dark bg-white px-4 py-3 text-brown focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
-        >
-          {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
-            <option key={n} value={n}>
-              {n} {n === 1 ? "person" : "people"}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center justify-center gap-6">
+          <button
+            type="button"
+            onClick={() => setGuests((g) => Math.max(1, g - 1))}
+            disabled={guests <= 1}
+            className="w-12 h-12 rounded-full border-2 border-cream-dark bg-white flex items-center justify-center text-2xl font-medium text-brown-light hover:border-terracotta hover:text-terracotta transition-all disabled:opacity-30 disabled:hover:border-cream-dark disabled:hover:text-brown-light"
+          >
+            &minus;
+          </button>
+          <span className="text-3xl font-bold text-brown w-12 text-center">
+            {guests}
+          </span>
+          <button
+            type="button"
+            onClick={() => setGuests((g) => Math.min(10, g + 1))}
+            disabled={guests >= 10}
+            className="w-12 h-12 rounded-full border-2 border-cream-dark bg-white flex items-center justify-center text-2xl font-medium text-brown-light hover:border-terracotta hover:text-terracotta transition-all disabled:opacity-30 disabled:hover:border-cream-dark disabled:hover:text-brown-light"
+          >
+            +
+          </button>
+        </div>
+        <p className="text-xs text-brown-light/60 text-center mt-2">
+          {guests === 1 ? "1 guest" : `${guests} guests`} &middot; max 10
+        </p>
       </div>
 
       <div className="bg-cream-dark/50 rounded-xl p-4">
-        <div className="flex justify-between items-center text-sm text-brown-light mb-2">
-          <span>
-            €{tour.price} x {participants}{" "}
-            {participants === 1 ? "person" : "people"}
-          </span>
-          <span className="font-semibold text-brown">
-            €{tour.price * participants}
-          </span>
-        </div>
-        <div className="flex justify-between items-center text-lg font-bold text-brown pt-2 border-t border-cream-dark">
+        <div className="flex justify-between items-center text-lg font-bold text-brown">
           <span>Total</span>
-          <span className="text-terracotta">
-            €{tour.price * participants}
-          </span>
+          <span className="text-terracotta">€{totalPrice.toFixed(2)}</span>
         </div>
+        {guests > 1 && (
+          <p className="text-sm text-brown-light/60 text-right mt-1">
+            €{(totalPrice / guests).toFixed(2)} per person
+          </p>
+        )}
       </div>
 
       <button

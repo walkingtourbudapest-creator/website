@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import type { Tour } from "@/data/tours";
+import { type Tour, getStartingPrice } from "@/data/tours";
 
 export default function TourCard({ tour }: { tour: Tour }) {
   return (
@@ -56,7 +56,7 @@ export default function TourCard({ tour }: { tour: Tour }) {
             </span>
           </div>
           <span className="text-terracotta font-semibold">
-            From €{tour.price}
+            From €{getStartingPrice(tour)}
           </span>
         </div>
       </div>
