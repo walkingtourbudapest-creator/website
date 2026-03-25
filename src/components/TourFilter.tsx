@@ -15,8 +15,9 @@ const categories: (TourCategory | "all")[] = [
 export default function TourFilter() {
   const [active, setActive] = useState<TourCategory | "all">("all");
 
+  const available = tours.filter((t) => t.available);
   const filtered =
-    active === "all" ? tours : tours.filter((t) => t.category === active);
+    active === "all" ? available : available.filter((t) => t.category === active);
 
   return (
     <div>

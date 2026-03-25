@@ -399,7 +399,7 @@ export const tours: Tour[] = [
     image: "/images/tours/vienna.jpg",
     cancellationPolicy: privateCancellation,
     stripeProductId: "",
-    available: true,
+    available: false,
   },
 ];
 

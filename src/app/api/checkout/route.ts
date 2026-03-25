@@ -3,7 +3,7 @@ import { stripe } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   try {
-    const { tourSlug, tourName, totalPrice, date, guests } = await req.json();
+    const { tourSlug, tourName, totalPrice, date, time, guests } = await req.json();
 
     if (!tourName || !totalPrice || !date || !guests) {
       return NextResponse.json(
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
             currency: "eur",
             product_data: {
               name: tourName,
-              description: `Date: ${date} | Guests: ${guests}`,
+              description: `Date: ${date} | Time: ${time} | Guests: ${guests}`,
             },
             unit_amount: Math.round(totalPrice * 100), // Stripe uses cents
           },
@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
         tourSlug,
         tourName,
         date,
+        time,
         guests: String(guests),
       },
     });
