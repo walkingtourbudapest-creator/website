@@ -27,15 +27,15 @@ export async function POST(req: NextRequest) {
     );
 
     switch (event.type) {
-      case "checkout.session.completed": {
-        const session = event.data.object;
+      case "payment_intent.succeeded": {
+        const paymentIntent = event.data.object;
         // TODO: Send confirmation email, update booking records, etc.
-        console.log("Booking confirmed:", {
-          tourName: session.metadata?.tourName,
-          date: session.metadata?.date,
-          participants: session.metadata?.participants,
-          customerEmail: session.customer_details?.email,
-          amountPaid: session.amount_total,
+        console.log("Payment succeeded:", {
+          tourName: paymentIntent.metadata?.tourName,
+          date: paymentIntent.metadata?.date,
+          time: paymentIntent.metadata?.time,
+          guests: paymentIntent.metadata?.guests,
+          amount: paymentIntent.amount,
         });
         break;
       }

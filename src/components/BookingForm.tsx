@@ -1,27 +1,25 @@
 "use client";
 
 import { useState } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
 import { type Tour, getTotalPrice } from "@/data/tours";
+import PaymentForm from "./PaymentForm";
 
-function getNextAvailableDate(): string {
-  const now = new Date();
-  const next = new Date(now);
-  next.setDate(next.getDate() + 2); // 24hr cutoff means at least day after tomorrow to be safe
-  return next.toISOString().split("T")[0];
-}
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+);
 
 function getNextAvailableTime(tour: Tour): { date: string; time: string } {
   const now = new Date();
-  const cutoff = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24hrs from now
+  const cutoff = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
   const isFlexible = tour.startTime === "Flexible";
   const timeSlots = [
     "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
     "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
   ];
-  const fixedTime = tour.startTime === "Flexible" ? "10:00" : tour.startTime.replace(" AM", "").replace(" PM", "");
 
-  // Try tomorrow first, then day after
   for (let dayOffset = 1; dayOffset <= 3; dayOffset++) {
     const tryDate = new Date(now);
     tryDate.setDate(tryDate.getDate() + dayOffset);
@@ -37,7 +35,6 @@ function getNextAvailableTime(tour: Tour): { date: string; time: string } {
         }
       }
     } else {
-      // Fixed time tours (e.g. "10:00 AM", "6:00 PM")
       const match = tour.startTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
       if (match) {
         let hours = parseInt(match[1]);
@@ -47,14 +44,15 @@ function getNextAvailableTime(tour: Tour): { date: string; time: string } {
         const slotDate = new Date(tryDate);
         slotDate.setHours(hours, mins, 0, 0);
         if (slotDate > cutoff) {
-          return { date: dateStr, time: fixedTime };
+          return { date: dateStr, time: `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}` };
         }
       }
     }
   }
 
-  // Fallback: 2 days from now
-  return { date: getNextAvailableDate(), time: isFlexible ? "10:00" : fixedTime };
+  const fallback = new Date(now);
+  fallback.setDate(fallback.getDate() + 2);
+  return { date: fallback.toISOString().split("T")[0], time: isFlexible ? "10:00" : "10:00" };
 }
 
 const timeLabels: Record<string, string> = {
@@ -76,7 +74,9 @@ export default function BookingForm({ tour }: { tour: Tour }) {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("10:00");
   const [guests, setGuests] = useState(1);
+  const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState<"details" | "payment">("details");
 
   const isFlexibleTime = tour.startTime === "Flexible";
 
@@ -94,12 +94,12 @@ export default function BookingForm({ tour }: { tour: Tour }) {
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleProceedToPayment(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const res = await fetch("/api/checkout", {
+      const res = await fetch("/api/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -114,10 +114,11 @@ export default function BookingForm({ tour }: { tour: Tour }) {
 
       const data = await res.json();
 
-      if (data.url) {
-        window.location.href = data.url;
+      if (data.clientSecret) {
+        setClientSecret(data.clientSecret);
+        setStep("payment");
       } else {
-        alert("Something went wrong. Please try again.");
+        alert(data.error || "Something went wrong. Please try again.");
       }
     } catch {
       alert("Something went wrong. Please try again.");
@@ -126,8 +127,34 @@ export default function BookingForm({ tour }: { tour: Tour }) {
     }
   }
 
+  if (step === "payment" && clientSecret) {
+    return (
+      <Elements
+        stripe={stripePromise}
+        options={{
+          clientSecret,
+          appearance: {
+            theme: "stripe",
+            variables: {
+              colorPrimary: "#C0603A",
+              colorBackground: "#ffffff",
+              colorText: "#3D2B1F",
+              borderRadius: "12px",
+              fontFamily: "Inter, system-ui, sans-serif",
+            },
+          },
+        }}
+      >
+        <PaymentForm
+          totalPrice={totalPrice}
+          onBack={() => setStep("details")}
+        />
+      </Elements>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleProceedToPayment} className="space-y-6">
       <div className="flex items-center justify-between">
         <label
           htmlFor="date"
@@ -226,12 +253,8 @@ export default function BookingForm({ tour }: { tour: Tour }) {
         disabled={loading || !date}
         className="w-full rounded-full bg-terracotta py-4 text-white font-semibold text-lg transition-all hover:bg-terracotta-dark disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? "Redirecting to payment..." : "Book Now"}
+        {loading ? "Loading payment..." : "Proceed to Payment"}
       </button>
-
-      <p className="text-xs text-brown-light/60 text-center">
-        You will be redirected to Stripe for secure payment
-      </p>
     </form>
   );
 }
